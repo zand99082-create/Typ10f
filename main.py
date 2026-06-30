@@ -12,7 +12,8 @@ from PyQt6.QtCore import (
 )
 from PyQt6.QtGui import (
     QFont, QFontDatabase, QColor, QPainter, QPen, QBrush,
-    QLinearGradient, QPainterPath, QRadialGradient
+    QLinearGradient, QPainterPath, QRadialGradient,
+    QPixmap  # ← این خط اضافه شد
 )
 import re
 
