@@ -1,4 +1,5 @@
 import sys, random, time, os, json
+import math
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QProgressBar, QFrame, QStackedWidget, QGraphicsOpacityEffect,
@@ -1442,7 +1443,55 @@ class ResultScreen(QWidget):
             p.drawEllipse(px, py, pt["size"], pt["size"])
         p.end()
 
+class AnimatedBackground(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(850, 600)
+        self.pixmap = QPixmap(self.width(), self.height())
+        self.pixmap.fill(Qt.GlobalColor.black)
 
+        self.angle = 0
+        self.length = 0
+        self.x, self.y = 0, 150
+        self.step = 0
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_drawing)
+        self.timer.start(30)
+
+        self.label = QLabel(self)
+        self.label.setPixmap(self.pixmap)
+        self.label.resize(self.width(), self.height())
+        self.label.move(0, 0)
+
+    def update_drawing(self):
+        painter = QPainter(self.pixmap)
+        painter.setPen(QPen(QColor("green"), 1))
+
+        rad = math.radians(self.angle)
+        dx = self.length * math.cos(rad)
+        dy = self.length * math.sin(rad)
+
+        cx, cy = self.width() // 2, self.height() // 1.5
+
+        painter.drawLine(cx + self.x, cy - self.y, cx + self.x + dx, cy - self.y - dy)
+
+        self.x += dx
+        self.y += dy
+
+        self.length += 3
+        self.angle += 1
+        self.step += 1
+
+        painter.end()
+        self.label.setPixmap(self.pixmap)
+
+        if self.step >= 204:
+            self.timer.stop()
+
+    def resizeEvent(self, event):
+        self.pixmap = self.pixmap.scaled(self.width(), self.height())
+        self.label.setPixmap(self.pixmap)
 # ── Main Window ──────────────────────────────────────────────────────────────
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -1451,6 +1500,11 @@ class MainWindow(QMainWindow):
         self.current_lesson = None
         self.setWindowTitle("⚡ code_rah — آموزش تایپ فارسی ۱۰ انگشت")
         self.resize(1280, 800)
+
+        # === پس‌زمینه متحرک جدید (Turtle) ===
+        self.bg_animated = AnimatedBackground(self)
+        self.bg_animated.lower()
+        self.bg_animated.show()
 
         self._bg = GlowBg(self)
         self._bg.resize(self.size())
@@ -1485,6 +1539,11 @@ class MainWindow(QMainWindow):
     def resizeEvent(self, e):
         super().resizeEvent(e)
         self._bg.resize(self.size())
+        # تغییر اندازه‌ی پس‌زمینه متحرک هماهنگ با پنجره
+        self.bg_animated.setFixedSize(self.width(), self.height())
+        self.bg_animated.pixmap = QPixmap(self.width(), self.height())
+        self.bg_animated.pixmap.fill(Qt.GlobalColor.black)
+        self.bg_animated.label.resize(self.width(), self.height())
 
     def _build_home(self):
         if self._hw:
