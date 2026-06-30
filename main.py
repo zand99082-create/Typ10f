@@ -1498,7 +1498,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.progress = load_progress()
         self.current_lesson = None
-        self.setWindowTitle("⚡ code_rah — آموزش تایپ فارسی ۱۰ انگشت")
+        self.setWindowTitle("⚡ TyplOf — آموزش تایپ فارسی ۱۰ انگشت")
         self.resize(1280, 800)
 
         # === پس‌زمینه متحرک جدید (Turtle) ===
